@@ -1,0 +1,155 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  padding: 20px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 100%;
+  max-width: 440px;
+}
+
+.card h1 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.card p {
+  color: #555;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+/* Grid of subject name (left) + marks input (right), one row per subject */
+.subject-grid {
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  row-gap: 12px;
+  column-gap: 16px;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.subject-row {
+  display: contents;
+}
+
+.subject-row label {
+  align-self: center;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.subject-row input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  text-align: center;
+}
+
+.subject-row input:focus {
+  outline: none;
+  border-color: #4facfe;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+#calculateBtn,
+.secondary,
+.ghost {
+  border: none;
+  padding: 12px 28px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#calculateBtn {
+  background: #2c3e50;
+  color: #fff;
+}
+
+#calculateBtn:hover {
+  background: #1a252f;
+}
+
+.secondary {
+  background: #eef2f5;
+  color: #2c3e50;
+}
+
+.secondary:hover {
+  background: #dde4e9;
+}
+
+/* Results panel, revealed after Calculate is clicked */
+.results {
+  margin-top: 20px;
+  padding: 18px;
+  background: #f4fbf7;
+  border: 1px solid #cdeedd;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.results h2 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.results p {
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 15px;
+}
+
+.results span {
+  font-weight: 700;
+  color: #17845a;
+}
+
+.hidden {
+  display: none;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 25px 0 18px;
+}
+
+.ghost {
+  background: transparent;
+  color: #888;
+  font-size: 13px;
+  padding: 8px 16px;
+  text-decoration: underline;
+}
+
+.ghost:hover {
+  color: #444;
+}

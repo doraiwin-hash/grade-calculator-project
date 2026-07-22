@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grade Calculator</title>
+
+  <!-- Connect the CSS file -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <main class="card">
+    <h1>Grade Calculator</h1>
+    <p>Enter your marks (out of 100) for each subject, then calculate.</p>
+
+    <!-- Grid of subject name + marks input, one row per subject -->
+    <div class="subject-grid">
+      <div class="subject-row">
+        <label for="mark1">Mathematics</label>
+        <input type="number" id="mark1" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="subject-row">
+        <label for="mark2">Science</label>
+        <input type="number" id="mark2" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="subject-row">
+        <label for="mark3">English</label>
+        <input type="number" id="mark3" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="subject-row">
+        <label for="mark4">Social Studies</label>
+        <input type="number" id="mark4" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="subject-row">
+        <label for="mark5">Computer Science</label>
+        <input type="number" id="mark5" min="0" max="100" placeholder="0-100">
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button type="button" id="calculateBtn" onclick="calculateGradeForm()">Calculate Grade</button>
+      <button type="button" id="resetBtn" class="secondary" onclick="resetForm()">Reset</button>
+    </div>
+
+    <!-- Results panel, hidden until Calculate is clicked -->
+    <section id="resultsPanel" class="results hidden">
+      <h2>Results</h2>
+      <p>Total Marks: <span id="totalMarks"></span></p>
+      <p>Average Marks: <span id="averageMarks"></span></p>
+      <p>Grade: <span id="gradeResult"></span></p>
+    </section>
+
+    <hr>
+
+    <!-- Assignment also requires a prompt()/alert() based flow -->
+    <button type="button" id="promptBtn" class="ghost" onclick="calculateGrade()">Try the prompt() popup version</button>
+  </main>
+
+  <!-- Connect the JS file (placed at the end so the DOM loads first) -->
+  <script src="js/script.js"></script>
+</body>
+</html>
