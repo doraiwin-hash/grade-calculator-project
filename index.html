@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grade Calculator</title>
+  <title>Calculator - Operators & Functions</title>
 
   <!-- Connect the CSS file -->
   <link rel="stylesheet" href="css/style.css">
@@ -11,50 +11,46 @@
 <body>
 
   <main class="card">
-    <h1>Grade Calculator</h1>
-    <p>Enter your marks (out of 100) for each subject, then calculate.</p>
+    <h1>Calculator</h1>
+    <p>Enter number(s) below, then press an operation button.</p>
 
-    <!-- Grid of subject name + marks input, one row per subject -->
-    <div class="subject-grid">
-      <div class="subject-row">
-        <label for="mark1">Mathematics</label>
-        <input type="number" id="mark1" min="0" max="100" placeholder="0-100">
-      </div>
-      <div class="subject-row">
-        <label for="mark2">Science</label>
-        <input type="number" id="mark2" min="0" max="100" placeholder="0-100">
-      </div>
-      <div class="subject-row">
-        <label for="mark3">English</label>
-        <input type="number" id="mark3" min="0" max="100" placeholder="0-100">
-      </div>
-      <div class="subject-row">
-        <label for="mark4">Social Studies</label>
-        <input type="number" id="mark4" min="0" max="100" placeholder="0-100">
-      </div>
-      <div class="subject-row">
-        <label for="mark5">Computer Science</label>
-        <input type="number" id="mark5" min="0" max="100" placeholder="0-100">
-      </div>
+    <!-- Input boxes for the two numbers used in arithmetic operations -->
+    <div class="input-group">
+      <label for="num1">Number 1</label>
+      <input type="number" id="num1" placeholder="Enter first number">
     </div>
 
+    <div class="input-group">
+      <label for="num2">Number 2</label>
+      <input type="number" id="num2" placeholder="Enter second number">
+    </div>
+
+    <!-- Basic arithmetic operations -->
     <div class="button-row">
-      <button type="button" id="calculateBtn" onclick="calculateGradeForm()">Calculate Grade</button>
-      <button type="button" id="resetBtn" class="secondary" onclick="resetForm()">Reset</button>
+      <button type="button" onclick="calculate('add')">+ Add</button>
+      <button type="button" onclick="calculate('subtract')">− Subtract</button>
+      <button type="button" onclick="calculate('multiply')">× Multiply</button>
+      <button type="button" onclick="calculate('divide')">÷ Divide</button>
     </div>
-
-    <!-- Results panel, hidden until Calculate is clicked -->
-    <section id="resultsPanel" class="results hidden">
-      <h2>Results</h2>
-      <p>Total Marks: <span id="totalMarks"></span></p>
-      <p>Average Marks: <span id="averageMarks"></span></p>
-      <p>Grade: <span id="gradeResult"></span></p>
-    </section>
 
     <hr>
 
-    <!-- Assignment also requires a prompt()/alert() based flow -->
-    <button type="button" id="promptBtn" class="ghost" onclick="calculateGrade()">Try the prompt() popup version</button>
+    <p class="hint">Square and Cube use only Number 1.</p>
+
+    <!-- Square and cube use only the first number -->
+    <div class="button-row">
+      <button type="button" class="secondary" onclick="calculate('square')">x² Square</button>
+      <button type="button" class="secondary" onclick="calculate('cube')">x³ Cube</button>
+    </div>
+
+    <div class="button-row">
+      <button type="button" class="ghost" onclick="resetCalculator()">Reset</button>
+    </div>
+
+    <!-- Result panel, hidden until a calculation is performed -->
+    <section id="resultPanel" class="results hidden">
+      <p>Result: <span id="resultValue"></span></p>
+    </section>
   </main>
 
   <!-- Connect the JS file (placed at the end so the DOM loads first) -->

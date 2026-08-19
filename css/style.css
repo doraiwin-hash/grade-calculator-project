@@ -31,39 +31,37 @@ body {
 
 .card p {
   color: #555;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   line-height: 1.5;
 }
 
-/* Grid of subject name (left) + marks input (right), one row per subject */
-.subject-grid {
-  display: grid;
-  grid-template-columns: 1fr 100px;
-  row-gap: 12px;
-  column-gap: 16px;
-  margin-bottom: 25px;
+.card p.hint {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #888;
+}
+
+.input-group {
   text-align: left;
+  margin-bottom: 16px;
 }
 
-.subject-row {
-  display: contents;
-}
-
-.subject-row label {
-  align-self: center;
+.input-group label {
+  display: block;
   color: #2c3e50;
   font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.subject-row input {
-  padding: 8px 10px;
+.input-group input {
+  width: 100%;
+  padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 15px;
-  text-align: center;
 }
 
-.subject-row input:focus {
+.input-group input:focus {
   outline: none;
   border-color: #4facfe;
   box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25);
@@ -71,28 +69,28 @@ body {
 
 .button-row {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
-#calculateBtn,
-.secondary,
-.ghost {
+button {
   border: none;
-  padding: 12px 28px;
-  font-size: 16px;
+  padding: 12px 18px;
+  font-size: 15px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
+  flex: 1 1 auto;
 }
 
-#calculateBtn {
+.button-row button:not(.secondary):not(.ghost) {
   background: #2c3e50;
   color: #fff;
 }
 
-#calculateBtn:hover {
+.button-row button:not(.secondary):not(.ghost):hover {
   background: #1a252f;
 }
 
@@ -105,9 +103,29 @@ body {
   background: #dde4e9;
 }
 
-/* Results panel, revealed after Calculate is clicked */
+.ghost {
+  background: transparent;
+  color: #888;
+  font-size: 13px;
+  text-decoration: underline;
+  flex: none;
+  padding: 8px 16px;
+  margin: 0 auto;
+}
+
+.ghost:hover {
+  color: #444;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 20px 0 14px;
+}
+
+/* Result panel, revealed after a calculation */
 .results {
-  margin-top: 20px;
+  margin-top: 10px;
   padding: 18px;
   background: #f4fbf7;
   border: 1px solid #cdeedd;
@@ -115,16 +133,10 @@ body {
   text-align: left;
 }
 
-.results h2 {
-  color: #2c3e50;
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
 .results p {
-  margin-bottom: 6px;
+  margin: 0;
   color: #333;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .results span {
@@ -134,22 +146,4 @@ body {
 
 .hidden {
   display: none;
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #e0e0e0;
-  margin: 25px 0 18px;
-}
-
-.ghost {
-  background: transparent;
-  color: #888;
-  font-size: 13px;
-  padding: 8px 16px;
-  text-decoration: underline;
-}
-
-.ghost:hover {
-  color: #444;
 }
