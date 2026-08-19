@@ -1,301 +1,297 @@
-// In-memory list of task objects, persisted to localStorage
-const STORAGE_KEY = "todoTasks";
-let tasks = loadTasks();
-let currentFilter = "all";
-let currentSort = "created";
-let nextId = tasks.reduce((max, t) => Math.max(max, t.id), 0) + 1;
+const API_BASE = "https://fakestoreapi.com/products";
+
+// Local cache of products fetched from the API. The Fake Store API is a
+// mock backend: POST/PUT/DELETE respond successfully but don't actually
+// persist, so this array is what the UI renders from after each request.
+let products = [];
+let editingId = null;
 
 // Form fields
-const taskForm = document.getElementById("taskForm");
-const taskInput = document.getElementById("taskInput");
-const taskDescInput = document.getElementById("taskDescInput");
-const taskPriorityInput = document.getElementById("taskPriorityInput");
-const taskDueInput = document.getElementById("taskDueInput");
-const taskCategoryInput = document.getElementById("taskCategoryInput");
+const productForm = document.getElementById("productForm");
+const formTitle = document.getElementById("formTitle");
+const titleInput = document.getElementById("titleInput");
+const priceInput = document.getElementById("priceInput");
+const categoryInput = document.getElementById("categoryInput");
+const customCategoryWrap = document.getElementById("customCategoryWrap");
+const customCategoryInput = document.getElementById("customCategoryInput");
+const descriptionInput = document.getElementById("descriptionInput");
+const imageInput = document.getElementById("imageInput");
+const imageFileInput = document.getElementById("imageFileInput");
+const imagePreview = document.getElementById("imagePreview");
+const submitBtn = document.getElementById("submitBtn");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
+const searchInput = document.getElementById("searchInput");
+const statusMessage = document.getElementById("statusMessage");
+const productGrid = document.getElementById("productGrid");
 
-// Display elements
-const taskList = document.getElementById("taskList");
-const emptyMessage = document.getElementById("emptyMessage");
-const taskSummary = document.getElementById("taskSummary");
-const statusFilterGroup = document.getElementById("statusFilterGroup");
-const sortSelect = document.getElementById("sortSelect");
+const PRESET_CATEGORIES = ["electronics", "jewelery", "men's clothing", "women's clothing"];
 
-taskForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  addTask();
+// Data URL of a locally attached image file, if any. Takes priority over the URL field.
+let attachedImageData = null;
+
+productForm.addEventListener("submit", handleSubmit);
+cancelEditBtn.addEventListener("click", exitEditMode);
+searchInput.addEventListener("input", () => renderProducts(getFilteredProducts()));
+
+categoryInput.addEventListener("change", () => {
+  customCategoryWrap.classList.toggle("d-none", categoryInput.value !== "__other__");
 });
 
-statusFilterGroup.addEventListener("click", (event) => {
-  const btn = event.target.closest("button[data-filter]");
-  if (!btn) return;
-  currentFilter = btn.dataset.filter;
-  [...statusFilterGroup.children].forEach((b) => b.classList.toggle("active", b === btn));
-  render();
-});
-
-sortSelect.addEventListener("change", () => {
-  currentSort = sortSelect.value;
-  render();
-});
-
-function loadTasks() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
+imageInput.addEventListener("input", () => {
+  if (imageInput.value.trim()) {
+    attachedImageData = null;
+    imageFileInput.value = "";
   }
-}
+  showImagePreview(imageInput.value.trim());
+});
 
-function saveTasks() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
+imageFileInput.addEventListener("change", () => {
+  const file = imageFileInput.files[0];
+  if (!file) return;
 
-function addTask() {
-  const title = taskInput.value.trim();
-  if (title === "") {
-    alert("Please enter a task title.");
+  const reader = new FileReader();
+  reader.onload = () => {
+    attachedImageData = reader.result;
+    imageInput.value = "";
+    showImagePreview(attachedImageData);
+  };
+  reader.readAsDataURL(file);
+});
+
+function showImagePreview(src) {
+  if (!src) {
+    imagePreview.classList.add("d-none");
+    imagePreview.src = "";
     return;
   }
-
-  tasks.push({
-    id: nextId++,
-    title,
-    description: taskDescInput.value.trim(),
-    priority: taskPriorityInput.value,
-    dueDate: taskDueInput.value,
-    category: taskCategoryInput.value.trim(),
-    completed: false,
-    createdAt: Date.now(),
-  });
-
-  saveTasks();
-  taskForm.reset();
-  taskPriorityInput.value = "medium";
-  render();
+  imagePreview.src = src;
+  imagePreview.classList.remove("d-none");
 }
 
-function toggleComplete(id) {
-  const task = tasks.find((t) => t.id === id);
-  if (task) {
-    task.completed = !task.completed;
-    saveTasks();
-    render();
+fetchProducts();
+
+// ---- Read ----
+
+async function fetchProducts() {
+  setStatus("Loading products...");
+  try {
+    const response = await fetch(API_BASE);
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    products = await response.json();
+    setStatus("");
+    renderProducts(getFilteredProducts());
+  } catch (err) {
+    setStatus("Could not load products. Please try again later.", true);
   }
 }
 
-function deleteTask(id) {
-  tasks = tasks.filter((t) => t.id !== id);
-  saveTasks();
-  render();
+function getFilteredProducts() {
+  const query = searchInput.value.trim().toLowerCase();
+  if (query === "") return products;
+  return products.filter((p) => p.title.toLowerCase().includes(query));
 }
 
-function updateTask(id, updates) {
-  const task = tasks.find((t) => t.id === id);
-  if (task) {
-    Object.assign(task, updates);
-    saveTasks();
-    render();
+function renderProducts(list) {
+  productGrid.innerHTML = "";
+
+  if (list.length === 0) {
+    setStatus("No products found.");
+    return;
   }
+  if (statusMessage.textContent === "No products found.") {
+    setStatus("");
+  }
+
+  list.forEach((product) => productGrid.appendChild(buildProductCard(product)));
 }
 
-function getVisibleTasks() {
-  let visible = tasks.filter((t) => {
-    if (currentFilter === "pending") return !t.completed;
-    if (currentFilter === "completed") return t.completed;
-    return true;
-  });
+function buildProductCard(product) {
+  const col = document.createElement("div");
+  col.className = "col-sm-6 col-md-4 col-lg-3";
 
-  const priorityRank = { high: 0, medium: 1, low: 2 };
-  visible = [...visible].sort((a, b) => {
-    if (currentSort === "due") {
-      if (!a.dueDate) return 1;
-      if (!b.dueDate) return -1;
-      return a.dueDate.localeCompare(b.dueDate);
-    }
-    if (currentSort === "priority") {
-      return priorityRank[a.priority] - priorityRank[b.priority];
-    }
-    return b.createdAt - a.createdAt;
-  });
+  const card = document.createElement("div");
+  card.className = "card product-card";
 
-  return visible;
-}
+  const img = document.createElement("img");
+  img.src = product.image || "https://via.placeholder.com/200?text=No+Image";
+  img.alt = product.title;
+  card.appendChild(img);
 
-function isOverdue(task) {
-  if (!task.dueDate || task.completed) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  return task.dueDate < today;
-}
+  const body = document.createElement("div");
+  body.className = "card-body";
 
-function render() {
-  taskList.innerHTML = "";
-  const visible = getVisibleTasks();
+  const title = document.createElement("p");
+  title.className = "product-title mb-1";
+  title.textContent = product.title;
+  body.appendChild(title);
 
-  visible.forEach((task) => taskList.appendChild(buildTaskElement(task)));
+  const category = document.createElement("span");
+  category.className = "badge bg-secondary align-self-start mb-2";
+  category.textContent = product.category;
+  body.appendChild(category);
 
-  emptyMessage.style.display = visible.length === 0 ? "block" : "none";
-  emptyMessage.textContent = tasks.length === 0
-    ? "No tasks yet. Add one above!"
-    : "No tasks match this filter.";
-
-  const completedCount = tasks.filter((t) => t.completed).length;
-  taskSummary.textContent = tasks.length === 0
-    ? ""
-    : `${completedCount} of ${tasks.length} task${tasks.length === 1 ? "" : "s"} completed`;
-}
-
-function buildTaskElement(task) {
-  const li = document.createElement("li");
-  li.className = "list-group-item";
-
-  const header = document.createElement("div");
-  header.className = "task-header";
-
-  const title = document.createElement("span");
-  title.className = "task-text" + (task.completed ? " completed" : "");
-  title.textContent = task.title;
-  // Clicking the title toggles it as completed (strike-through)
-  title.addEventListener("click", () => toggleComplete(task.id));
-  header.appendChild(title);
+  const price = document.createElement("p");
+  price.className = "product-price mb-3";
+  price.textContent = `$${Number(product.price).toFixed(2)}`;
+  body.appendChild(price);
 
   const actions = document.createElement("div");
-  actions.className = "task-actions";
+  actions.className = "product-actions";
 
   const editBtn = document.createElement("button");
   editBtn.type = "button";
   editBtn.className = "btn btn-outline-secondary btn-sm";
   editBtn.textContent = "Edit";
-  editBtn.addEventListener("click", () => renderEditForm(li, task));
+  editBtn.addEventListener("click", () => enterEditMode(product));
   actions.appendChild(editBtn);
 
   const deleteBtn = document.createElement("button");
   deleteBtn.type = "button";
-  deleteBtn.className = "btn btn-outline-danger btn-sm delete-btn";
+  deleteBtn.className = "btn btn-outline-danger btn-sm";
   deleteBtn.textContent = "Delete";
-  deleteBtn.addEventListener("click", () => deleteTask(task.id));
+  deleteBtn.addEventListener("click", () => deleteProduct(product.id));
   actions.appendChild(deleteBtn);
 
-  header.appendChild(actions);
-  li.appendChild(header);
-
-  if (task.description) {
-    const desc = document.createElement("p");
-    desc.className = "task-desc mb-0" + (task.completed ? " completed" : "");
-    desc.textContent = task.description;
-    li.appendChild(desc);
-  }
-
-  const meta = document.createElement("div");
-  meta.className = "task-meta";
-
-  const priorityBadge = document.createElement("span");
-  priorityBadge.className = `badge priority-badge priority-${task.priority}`;
-  priorityBadge.textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1) + " priority";
-  meta.appendChild(priorityBadge);
-
-  if (task.dueDate) {
-    const dueBadge = document.createElement("span");
-    dueBadge.className = "badge bg-light text-dark due-badge" + (isOverdue(task) ? " overdue" : "");
-    dueBadge.textContent = (isOverdue(task) ? "Overdue: " : "Due: ") + task.dueDate;
-    meta.appendChild(dueBadge);
-  }
-
-  if (task.category) {
-    const categoryBadge = document.createElement("span");
-    categoryBadge.className = "badge bg-secondary";
-    categoryBadge.textContent = task.category;
-    meta.appendChild(categoryBadge);
-  }
-
-  const statusBadge = document.createElement("span");
-  statusBadge.className = "badge " + (task.completed ? "bg-success" : "bg-info text-dark");
-  statusBadge.textContent = task.completed ? "Completed" : "Pending";
-  meta.appendChild(statusBadge);
-
-  li.appendChild(meta);
-
-  return li;
+  body.appendChild(actions);
+  card.appendChild(body);
+  col.appendChild(card);
+  return col;
 }
 
-function renderEditForm(li, task) {
-  li.innerHTML = "";
-  li.classList.add("edit-form");
+// ---- Create / Update ----
 
-  const titleInput = document.createElement("input");
-  titleInput.type = "text";
-  titleInput.className = "form-control";
-  titleInput.value = task.title;
+async function handleSubmit(event) {
+  event.preventDefault();
 
-  const descInput = document.createElement("textarea");
-  descInput.className = "form-control";
-  descInput.rows = 2;
-  descInput.value = task.description;
+  const category = categoryInput.value === "__other__"
+    ? customCategoryInput.value.trim()
+    : categoryInput.value;
 
-  const row = document.createElement("div");
-  row.className = "row g-2 mb-2";
+  const payload = {
+    title: titleInput.value.trim(),
+    price: parseFloat(priceInput.value),
+    category,
+    description: descriptionInput.value.trim(),
+    image: attachedImageData || imageInput.value.trim(),
+  };
 
-  const priorityCol = document.createElement("div");
-  priorityCol.className = "col-4";
-  const priorityInput = document.createElement("select");
-  priorityInput.className = "form-select";
-  ["low", "medium", "high"].forEach((p) => {
-    const opt = document.createElement("option");
-    opt.value = p;
-    opt.textContent = p.charAt(0).toUpperCase() + p.slice(1);
-    if (p === task.priority) opt.selected = true;
-    priorityInput.appendChild(opt);
-  });
-  priorityCol.appendChild(priorityInput);
+  if (!payload.title || isNaN(payload.price) || !payload.category) {
+    alert("Please fill in title, price and category.");
+    return;
+  }
 
-  const dueCol = document.createElement("div");
-  dueCol.className = "col-4";
-  const dueInput = document.createElement("input");
-  dueInput.type = "date";
-  dueInput.className = "form-control";
-  dueInput.value = task.dueDate;
-  dueCol.appendChild(dueInput);
+  if (editingId === null) {
+    await createProduct(payload);
+  } else {
+    await updateProduct(editingId, payload);
+  }
+}
 
-  const categoryCol = document.createElement("div");
-  categoryCol.className = "col-4";
-  const categoryInput = document.createElement("input");
-  categoryInput.type = "text";
-  categoryInput.className = "form-control";
-  categoryInput.value = task.category;
-  categoryCol.appendChild(categoryInput);
-
-  row.append(priorityCol, dueCol, categoryCol);
-
-  const actions = document.createElement("div");
-  actions.className = "d-flex gap-2";
-
-  const saveBtn = document.createElement("button");
-  saveBtn.type = "button";
-  saveBtn.className = "btn btn-primary btn-sm";
-  saveBtn.textContent = "Save";
-  saveBtn.addEventListener("click", () => {
-    const title = titleInput.value.trim();
-    if (title === "") {
-      alert("Task title cannot be empty.");
-      return;
-    }
-    updateTask(task.id, {
-      title,
-      description: descInput.value.trim(),
-      priority: priorityInput.value,
-      dueDate: dueInput.value,
-      category: categoryInput.value.trim(),
+async function createProduct(payload) {
+  setStatus("Adding product...");
+  try {
+    const response = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
-  });
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    const created = await response.json();
 
-  const cancelBtn = document.createElement("button");
-  cancelBtn.type = "button";
-  cancelBtn.className = "btn btn-outline-secondary btn-sm";
-  cancelBtn.textContent = "Cancel";
-  cancelBtn.addEventListener("click", render);
-
-  actions.append(saveBtn, cancelBtn);
-
-  li.append(titleInput, descInput, row, actions);
+    // The API echoes back an id, but doesn't actually store the product.
+    products.unshift({ ...payload, id: created.id ?? Date.now() });
+    setStatus("");
+    productForm.reset();
+    customCategoryWrap.classList.add("d-none");
+    attachedImageData = null;
+    showImagePreview("");
+    renderProducts(getFilteredProducts());
+  } catch (err) {
+    setStatus("Could not add the product. Please try again.", true);
+  }
 }
 
-render();
+async function updateProduct(id, payload) {
+  setStatus("Updating product...");
+  try {
+    const response = await fetch(`${API_BASE}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+    const index = products.findIndex((p) => p.id === id);
+    if (index !== -1) products[index] = { ...products[index], ...payload };
+
+    setStatus("");
+    exitEditMode();
+    renderProducts(getFilteredProducts());
+  } catch (err) {
+    setStatus("Could not update the product. Please try again.", true);
+  }
+}
+
+function enterEditMode(product) {
+  editingId = product.id;
+  titleInput.value = product.title;
+  priceInput.value = product.price;
+  descriptionInput.value = product.description || "";
+
+  if (PRESET_CATEGORIES.includes(product.category)) {
+    categoryInput.value = product.category;
+    customCategoryWrap.classList.add("d-none");
+    customCategoryInput.value = "";
+  } else {
+    categoryInput.value = "__other__";
+    customCategoryWrap.classList.remove("d-none");
+    customCategoryInput.value = product.category || "";
+  }
+
+  attachedImageData = null;
+  imageFileInput.value = "";
+  imageInput.value = product.image || "";
+  showImagePreview(product.image || "");
+
+  formTitle.textContent = "Edit Product";
+  submitBtn.textContent = "Save Changes";
+  cancelEditBtn.classList.remove("d-none");
+  productForm.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function exitEditMode() {
+  editingId = null;
+  productForm.reset();
+  customCategoryWrap.classList.add("d-none");
+  attachedImageData = null;
+  showImagePreview("");
+  formTitle.textContent = "Add New Product";
+  submitBtn.textContent = "Add Product";
+  cancelEditBtn.classList.add("d-none");
+}
+
+// ---- Delete ----
+
+async function deleteProduct(id) {
+  if (!confirm("Delete this product?")) return;
+
+  setStatus("Deleting product...");
+  try {
+    const response = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+
+    products = products.filter((p) => p.id !== id);
+    if (editingId === id) exitEditMode();
+    setStatus("");
+    renderProducts(getFilteredProducts());
+  } catch (err) {
+    setStatus("Could not delete the product. Please try again.", true);
+  }
+}
+
+// ---- Status helper ----
+
+function setStatus(message, isError = false) {
+  statusMessage.textContent = message;
+  statusMessage.classList.toggle("error", isError);
+}

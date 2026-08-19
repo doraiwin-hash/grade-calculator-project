@@ -1,101 +1,83 @@
 body {
   min-height: 100vh;
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  padding: 40px 15px;
   font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-.todo-card {
-  max-width: 560px;
+main.container {
+  max-width: 1100px;
+}
+
+h1 {
+  color: #2c3e50;
+}
+
+.product-form {
   border: none;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.todo-card h1 {
-  color: #2c3e50;
-  font-size: 1.75rem;
-}
-
-.task-form textarea {
+.product-form textarea {
   resize: vertical;
 }
 
-/* Each task card */
-#taskList .list-group-item {
+#imagePreview {
+  max-height: 120px;
+  max-width: 100%;
+  object-fit: contain;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 6px;
+  background: #fff;
+}
+
+/* Product card */
+.product-card {
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
-  gap: 6px;
 }
 
-.task-header {
+.product-card img {
+  height: 160px;
+  object-fit: contain;
+  padding: 12px;
+  background: #fff;
+}
+
+.product-card .card-body {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  flex: 1;
 }
 
-.task-text {
-  flex: 1;
-  word-break: break-word;
-  cursor: pointer;
+.product-card .product-title {
   font-weight: 600;
   color: #2c3e50;
+  font-size: 0.95rem;
+  min-height: 2.6em;
 }
 
-/* Strike-through applied when a task is toggled complete */
-.task-text.completed {
-  text-decoration: line-through;
-  color: #888;
+.product-card .product-price {
+  color: #17845a;
+  font-weight: 700;
 }
 
-.task-desc {
-  color: #555;
-  font-size: 0.9rem;
-  word-break: break-word;
-}
-
-.task-desc.completed {
-  text-decoration: line-through;
-  color: #aaa;
-}
-
-.task-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-
-.task-actions {
+.product-card .product-actions {
+  margin-top: auto;
   display: flex;
   gap: 6px;
-  flex-shrink: 0;
 }
 
-.priority-badge.priority-low {
-  background: #dcedc8 !important;
-  color: #33691e !important;
+#statusMessage {
+  min-height: 1.5em;
 }
 
-.priority-badge.priority-medium {
-  background: #fff3cd !important;
-  color: #856404 !important;
-}
-
-.priority-badge.priority-high {
-  background: #f8d7da !important;
-  color: #842029 !important;
-}
-
-.due-badge.overdue {
-  background: #f8d7da !important;
-  color: #842029 !important;
-}
-
-/* Edit mode inline form */
-.edit-form input,
-.edit-form textarea,
-.edit-form select {
-  margin-bottom: 6px;
+#statusMessage.error {
+  color: #b02a37;
+  font-weight: 600;
 }

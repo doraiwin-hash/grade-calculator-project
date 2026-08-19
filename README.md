@@ -1,32 +1,32 @@
-# To-Do List
+# Product Management App
 
-A responsive To-Do List app built for the Entri Elevate Full Stack Development course (Module: JavaScript, Assignment 8).
+A Product Management Web Application built for the Entri Elevate Full Stack Development course (Module: JavaScript, Assignment 9), performing CRUD operations against the [Fake Store API](https://fakestoreapi.com/products) with `fetch` and `async`/`await`.
 
 ## Features
 
-- Add tasks with a title, description, priority (low/medium/high), due date, and category.
-- Tasks are rendered as `<li>` items using DOM `createElement` methods.
-- Click a task's title to toggle a strike-through, marking it complete.
-- Edit any task's fields in place, or delete it via DOM `remove`.
-- Filter by All / Pending / Completed, and sort by newest, due date, or priority.
-- Overdue tasks are flagged, and a completed/total summary is shown.
-- Tasks persist across page reloads via `localStorage`.
-- Responsive, card-based layout styled with Bootstrap.
+- **View** — fetches all products on load and displays image, title, category and price.
+- **Add** — a form (title, price, category, description, image URL) sends a `POST` request and appends the new product to the grid.
+- **Edit** — "Edit" loads a product's details into the form and sends a `PUT` request on save, updating the UI immediately.
+- **Delete** — "Delete" sends a `DELETE` request and removes the product's card.
+- **Search** — filters the displayed products by title as you type.
+- **Loading & error handling** — a status message shows while requests are in flight, and a friendly error message if any API call fails.
+
+Since the Fake Store API is a mock backend (writes aren't actually persisted), the app keeps a local copy of the fetched products and updates it after each successful request so the UI reflects create/update/delete immediately.
 
 ## Project Structure
 
 ```
 .
-├── index.html      # Markup: textfield, add task button, task <ul>
+├── index.html      # Markup: product form, search bar, product grid
 ├── css/
 │   └── style.css   # Custom styling on top of Bootstrap
 └── js/
-    └── script.js   # EventListeners for add/delete/toggle-complete
+    └── script.js   # Fetch-based CRUD against the Fake Store API
 ```
 
 ## Running Locally
 
-Open `index.html` directly in a browser, or serve the folder with any static file server.
+Open `index.html` directly in a browser, or serve the folder with any static file server. An internet connection is required to reach the Fake Store API.
 
 ## Live Demo
 
