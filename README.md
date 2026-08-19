@@ -1,24 +1,27 @@
-# Calculator - Operators & Functions
+# To-Do List
 
-A simple JavaScript calculator built for the Entri Elevate Full Stack Development course (Module: JavaScript, Assignment 7).
+A responsive To-Do List app built for the Entri Elevate Full Stack Development course (Module: JavaScript, Assignment 8).
 
 ## Features
 
-- Two input boxes for entering numbers.
-- Basic arithmetic operations: Addition, Subtraction, Multiplication, Division (with divide-by-zero guard).
-- Square (x²) and Cube (x³) functions, using only Number 1.
-- Result displayed in a results panel on the page.
-- Reset button to clear inputs and results.
+- Add tasks with a title, description, priority (low/medium/high), due date, and category.
+- Tasks are rendered as `<li>` items using DOM `createElement` methods.
+- Click a task's title to toggle a strike-through, marking it complete.
+- Edit any task's fields in place, or delete it via DOM `remove`.
+- Filter by All / Pending / Completed, and sort by newest, due date, or priority.
+- Overdue tasks are flagged, and a completed/total summary is shown.
+- Tasks persist across page reloads via `localStorage`.
+- Responsive, card-based layout styled with Bootstrap.
 
 ## Project Structure
 
 ```
 .
-├── index.html      # Markup, links css/js
+├── index.html      # Markup: textfield, add task button, task <ul>
 ├── css/
-│   └── style.css   # Styling (form layout, buttons, results panel)
+│   └── style.css   # Custom styling on top of Bootstrap
 └── js/
-    └── script.js   # Arithmetic, square and cube logic
+    └── script.js   # EventListeners for add/delete/toggle-complete
 ```
 
 ## Running Locally
